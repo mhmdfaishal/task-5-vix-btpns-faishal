@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func ErrorMessage (err string) error {
-	
+func ErrorMessage(err string) error {
+
 	if strings.Contains(err, "pkey") {
 		return errors.New("User ID already exist")
 	} else if strings.Contains(err, "email_key") {

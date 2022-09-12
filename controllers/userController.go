@@ -8,12 +8,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 	"task-vix-btpns/app"
 	"task-vix-btpns/app/auth"
 	"task-vix-btpns/helpers/errorformat"
 	"task-vix-btpns/helpers/hash"
 	"task-vix-btpns/models"
-	"golang.org/x/crypto/bcrypt"
 )
 
 //Function to be used for user login
@@ -25,9 +25,9 @@ func Login(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -37,9 +37,9 @@ func Login(c *gin.Context) {
 	err = json.Unmarshal(body, &user_model)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -49,23 +49,23 @@ func Login(c *gin.Context) {
 	err = user_model.Validate("login")
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
-	
+
 	//Check if user exist
 	var user_login app.UserLogin
-	
+
 	err = db.Debug().Table("users").Select("*").Joins("LEFT JOIN photos ON photos.user_id = users.id").
-	Where("users.email = ?", user_model.Email).Find(&user_login).Error;
+		Where("users.email = ?", user_model.Email).Find(&user_login).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": "User with email "+user_model.Email+" not found", 
-			"data": nil,
+			"status":  "Error",
+			"message": "User with email " + user_model.Email + " not found",
+			"data":    nil,
 		})
 		return
 	}
@@ -75,9 +75,9 @@ func Login(c *gin.Context) {
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		formattedError := errorformat.ErrorMessage(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": formattedError.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": formattedError.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -86,9 +86,9 @@ func Login(c *gin.Context) {
 	token, err := auth.GenerateJWT(user_login.Email, user_login.Username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -100,9 +100,9 @@ func Login(c *gin.Context) {
 
 	//Return response
 	c.JSON(http.StatusUnprocessableEntity, gin.H{
-		"status": "Success", 
-		"message": "Login successfully", 
-		"data": data,
+		"status":  "Success",
+		"message": "Login successfully",
+		"data":    data,
 	})
 }
 
@@ -115,65 +115,65 @@ func CreateUser(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 	}
 
 	//Convert json to object
-	user_model := models.User{}			
+	user_model := models.User{}
 	err = json.Unmarshal(body, &user_model)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
 
-	user_model.Initialize()		//Inisialize user
+	user_model.Initialize() //Inisialize user
 
-	err = user_model.Validate("update")		//Validate user
+	err = user_model.Validate("update") //Validate user
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
 
-	err = user_model.HashPassword()	//Hash password
+	err = user_model.HashPassword() //Hash password
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = db.Debug().Create(&user_model).Error		//Create user to database
+	err = db.Debug().Create(&user_model).Error //Create user to database
 	if err != nil {
 		formattedError := errorformat.ErrorMessage(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "Error", 
-			"message": formattedError.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": formattedError.Error(),
+			"data":    nil,
 		})
 		return
 	}
 
-	data := app.UserRegister{			//data to be used for response
-		ID: user_model.ID,
-		Username: user_model.Username,
-		Email: user_model.Email,
+	data := app.UserRegister{ //data to be used for response
+		ID:        user_model.ID,
+		Username:  user_model.Username,
+		Email:     user_model.Email,
 		CreatedAt: user_model.CreatedAt,
 		UpdatedAt: user_model.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": "Success", 
-		"message": "User registered succesfully", 
-		"data": data,
-		}) //Response success
+		"status":  "Success",
+		"message": "User registered succesfully",
+		"data":    data,
+	}) //Response success
 }
 
 //Function to update user
@@ -187,9 +187,9 @@ func UpdateUser(c *gin.Context) {
 	err := db.Debug().Where("id = ?", c.Param("userId")).First(&user).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": "User with id "+c.Param("userId")+" not found", 
-			"data": nil,
+			"status":  "Error",
+			"message": "User with id " + c.Param("userId") + " not found",
+			"data":    nil,
 		})
 		return
 	}
@@ -198,9 +198,9 @@ func UpdateUser(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 	}
 
@@ -211,9 +211,9 @@ func UpdateUser(c *gin.Context) {
 	err = json.Unmarshal(body, &user_model)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -222,9 +222,9 @@ func UpdateUser(c *gin.Context) {
 	err = user_model.Validate("update")
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
@@ -240,44 +240,44 @@ func UpdateUser(c *gin.Context) {
 	if err != nil {
 		formattedError := errorformat.ErrorMessage(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "Error",
-			"message": formattedError.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": formattedError.Error(),
+			"data":    nil,
 		})
 		return
 	}
 
-	data := app.UserRegister{				//data to be used for response
-		ID: user_model.ID,
-		Username: user_model.Username,
-		Email: user_model.Email,
+	data := app.UserRegister{ //data to be used for response
+		ID:        user_model.ID,
+		Username:  user_model.Username,
+		Email:     user_model.Email,
 		CreatedAt: user_model.CreatedAt,
 		UpdatedAt: user_model.UpdatedAt,
 	}
 
 	//Response success
 	c.JSON(http.StatusOK, gin.H{
-		"status": "Error", 
-		"message": "User updated succesfully", 
-		"data": data,
+		"status":  "Error",
+		"message": "User updated succesfully",
+		"data":    data,
 	})
 }
 
 //Function to delete user
 func DeleteUser(c *gin.Context) {
 
-	//Set database 
+	//Set database
 	db := c.MustGet("db").(*gorm.DB)
 
 	//Check if user exist
 	var user models.User
-	
+
 	err := db.Debug().Where("id = ?", c.Param("userId")).First(&user).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": "User with id "+c.Param("userId")+" not found", 
-			"data": nil,
+			"status":  "Error",
+			"message": "User with id " + c.Param("userId") + " not found",
+			"data":    nil,
 		})
 		return
 	}
@@ -286,17 +286,17 @@ func DeleteUser(c *gin.Context) {
 	err = db.Debug().Delete(&user).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "Error", 
-			"message": err.Error(), 
-			"data": nil,
+			"status":  "Error",
+			"message": err.Error(),
+			"data":    nil,
 		})
 		return
 	}
 
 	//Response success
 	c.JSON(http.StatusOK, gin.H{
-		"status": "Success", 
-		"message": "User deleted succesfully", 
-		"data": nil,
+		"status":  "Success",
+		"message": "User deleted succesfully",
+		"data":    nil,
 	})
 }
