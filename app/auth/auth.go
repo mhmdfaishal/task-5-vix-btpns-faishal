@@ -9,7 +9,7 @@ import (
 
 var jwtKey = []byte(os.Getenv("API_SECRET"))
 
-type JWTClaim struct {
+type ClaimJWT struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	jwt.StandardClaims
@@ -17,12 +17,12 @@ type JWTClaim struct {
 
 //Function to generate JWT token
 func GenerateJWT(email string, username string) (tokenString string, err error) {
-	expirationTime := time.Now().Add(1 * time.Hour) //initialize expiration time
-	claims := &JWTClaim{                            //initialize claims
+	expiredTime := time.Now().Add(1 * time.Hour) //initialize expiration time
+	claims := &ClaimJWT{                            //initialize claims
 		Email:    email,
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+			ExpiresAt: expiredTime.Unix(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims) //initialize token
@@ -34,7 +34,7 @@ func GenerateJWT(email string, username string) (tokenString string, err error) 
 func ValidateToken(signedToken string) (err error) {
 	token, err := jwt.ParseWithClaims( //parse token
 		signedToken, //token string
-		&JWTClaim{},
+		&ClaimJWT{},
 		func(token *jwt.Token) (interface{}, error) { //validate token
 			return []byte(jwtKey), nil //return error if token is invalid
 		},
@@ -42,7 +42,7 @@ func ValidateToken(signedToken string) (err error) {
 	if err != nil {
 		return
 	}
-	claims, ok := token.Claims.(*JWTClaim) //get claims
+	claims, ok := token.Claims.(*ClaimJWT) //get claims
 	if !ok {
 		err = errors.New("Couldn't parse claims token") //return error if claims is invalid
 		return
@@ -54,11 +54,11 @@ func ValidateToken(signedToken string) (err error) {
 	return
 }
 
-//Take email data from user based on JWT token
+//Function to take email data from user based on JWT token
 func GetEmail(signedToken string) (email string, err error) {
 	token, err := jwt.ParseWithClaims( //parse token
 		signedToken,
-		&JWTClaim{},
+		&ClaimJWT{},
 		func(token *jwt.Token) (interface{}, error) {
 			return []byte(jwtKey), nil
 		},
@@ -66,7 +66,7 @@ func GetEmail(signedToken string) (email string, err error) {
 	if err != nil {
 		return
 	}
-	claims, ok := token.Claims.(*JWTClaim) //get claims
+	claims, ok := token.Claims.(*ClaimJWT) //get claims
 	if !ok {
 		err = errors.New("Couldn't parse claims token")
 		return

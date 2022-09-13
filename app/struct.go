@@ -14,6 +14,14 @@ type Owner struct {
 	Email    string `json:"email"`
 }
 
+type UserData struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Photos   Photo  `json:"photos"`
+	Token    string `json:"token"`
+}
+
 type UserLogin struct {
 	ID       string `json:"id"`
 	Username string `json:"users.username"`
@@ -31,12 +39,4 @@ type UserRegister struct {
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type UserData struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Photos   Photo  `json:"photos"`
-	Token    string `json:"token"`
 }

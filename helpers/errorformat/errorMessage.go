@@ -16,5 +16,6 @@ func ErrorMessage(err string) error {
 	} else if strings.Contains(err, "hashedPassword") {
 		return errors.New("Password is incorrect")
 	}
+	
 	return errors.New(err)
 }

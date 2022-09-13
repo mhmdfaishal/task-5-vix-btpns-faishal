@@ -34,7 +34,7 @@ type Photo struct {
 // USER METHODS
 
 //Inisialize user data
-func (u *User) Initialize() {
+func (u *User) Init() {
 	u.ID = uuid.New().String()                                    //Generate new uuid
 	u.Username = html.EscapeString(strings.TrimSpace(u.Username)) //Escape string
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
@@ -62,60 +62,61 @@ func (u *User) CheckPassword(providedPassword string) error {
 //Validate user data
 func (u *User) Validate(action string) error {
 	switch strings.ToLower(action) { //Convert to lowercase
-	case "register": //Register case
-		if u.ID == "" {
-			return errors.New("ID is required")
-		} else if u.Email == "" {
-			return errors.New("Email is required")
-		} else if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("Email is invalid")
-		} else if u.Username == "" {
-			return errors.New("Username is required")
-		} else if u.Password == "" {
-			return errors.New("Password is required")
-		} else if len(u.Password) < 8 {
-			return errors.New("Password must be at least 8 characters")
-		}
 
-		return nil
+		case "login": //Login case
+			if u.Email == "" {
+				return errors.New("Email is required")
+			}
+			if u.Password == "" {
+				return errors.New("Password is required")
+			}
+			if err := checkmail.ValidateFormat(u.Email); err != nil {
+				return errors.New("Email is invalid")
+			}
+			return nil
 
-	case "update": //Update case
-		if u.ID == "" {
-			return errors.New("ID is required")
-		} else if u.Email == "" {
-			return errors.New("Email is required")
-		} else if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("invalid email")
-		} else if u.Username == "" {
-			return errors.New("Username is required")
-		} else if u.Password == "" {
-			return errors.New("Password is required")
-		} else if len(u.Password) < 8 {
-			return errors.New("Password must be at least 8 characters")
-		}
+		case "register": //Register case
+			if u.ID == "" {
+				return errors.New("ID is required")
+			} else if u.Email == "" {
+				return errors.New("Email is required")
+			} else if err := checkmail.ValidateFormat(u.Email); err != nil {
+				return errors.New("Email is invalid")
+			} else if u.Username == "" {
+				return errors.New("Username is required")
+			} else if u.Password == "" {
+				return errors.New("Password is required")
+			} else if len(u.Password) < 8 {
+				return errors.New("Password must be at least 8 characters")
+			}
 
-		return nil
+			return nil
 
-	case "login": //Login case
-		if u.Email == "" {
-			return errors.New("Email is required")
-		}
-		if u.Password == "" {
-			return errors.New("Password is required")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("Email is invalid")
-		}
-		return nil
+		case "update": //Update case
+			if u.ID == "" {
+				return errors.New("ID is required")
+			} else if u.Email == "" {
+				return errors.New("Email is required")
+			} else if err := checkmail.ValidateFormat(u.Email); err != nil {
+				return errors.New("invalid email")
+			} else if u.Username == "" {
+				return errors.New("Username is required")
+			} else if u.Password == "" {
+				return errors.New("Password is required")
+			} else if len(u.Password) < 8 {
+				return errors.New("Password must be at least 8 characters")
+			}
 
-	default:
-		return nil
+			return nil
+
+		default:
+			return nil
 	}
 }
 
 //PHOTO METHODS
 //Function to initialize Photo data
-func (p *Photo) Initialize() {
+func (p *Photo) Init() {
 	p.Title = html.EscapeString(strings.TrimSpace(p.Title)) //Escape string
 	p.Caption = html.EscapeString(strings.TrimSpace(p.Caption))
 	p.PhotoUrl = html.EscapeString(strings.TrimSpace(p.PhotoUrl))
@@ -124,27 +125,27 @@ func (p *Photo) Initialize() {
 //Function to validate Photo data
 func (p *Photo) Validate(action string) error {
 	switch strings.ToLower(action) { //Convert to lowercase
-	case "upload": //Upload case
-		if p.Title == "" {
-			return errors.New("Title is required")
-		} else if p.Caption == "" {
-			return errors.New("Caption is required")
-		} else if p.UserID == "" {
-			return errors.New("UserID is required")
-		}
-		return nil
+		case "upload": // Create/Upload case
+			if p.Title == "" {
+				return errors.New("Title is required")
+			} else if p.Caption == "" {
+				return errors.New("Caption is required")
+			} else if p.UserID == "" {
+				return errors.New("UserID is required")
+			}
+			return nil
 
-	case "change": //Change case
-		if p.Title == "" {
-			return errors.New("Title is required")
-		} else if p.Caption == "" {
-			return errors.New("Caption is required")
-		} else if p.PhotoUrl == "" {
-			return errors.New("PhotoUrl is required")
-		}
-		return nil
+		case "change": //Change case
+			if p.Title == "" {
+				return errors.New("Title is required")
+			} else if p.Caption == "" {
+				return errors.New("Caption is required")
+			} else if p.PhotoUrl == "" {
+				return errors.New("PhotoUrl is required")
+			}
+			return nil
 
-	default:
-		return nil
+		default:
+			return nil
 	}
 }

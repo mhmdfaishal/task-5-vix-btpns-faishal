@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"task-vix-btpns/models"
 	"task-vix-btpns/app"
 	"task-vix-btpns/app/auth"
 	"task-vix-btpns/helpers/errorformat"
 	"task-vix-btpns/helpers/hash"
-	"task-vix-btpns/models"
 )
 
 //Function to be used for user login
@@ -44,8 +44,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	//Initialize user
-	user_model.Initialize()
+	//Init user
+	user_model.Init()
 	err = user_model.Validate("login")
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -133,7 +133,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user_model.Initialize() //Inisialize user
+	user_model.Init() //Inisialize user
 
 	err = user_model.Validate("update") //Validate user
 	if err != nil {

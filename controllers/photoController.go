@@ -1,16 +1,16 @@
 package controllers
 
 import (
-	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"io/ioutil"
 	"net/http"
+	"encoding/json"
 	"strings"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	"task-vix-btpns/models"
 	"task-vix-btpns/app"
 	"task-vix-btpns/app/auth"
 	"task-vix-btpns/helpers/errorformat"
-	"task-vix-btpns/models"
 )
 
 //GFunction to get photo profile
@@ -29,7 +29,7 @@ func GetPhoto(c *gin.Context) {
 		return
 	}
 
-	//Initialize list photo
+	//Init list photo
 	if len(photos) > 0 {
 		for i := range photos {
 			user := models.User{}
@@ -71,7 +71,7 @@ func CreatePhoto(c *gin.Context) {
 	}
 
 	//Get user mail from JWT
-	email, err := auth.GetEmail(strings.Split(tokenString, "Bearer")[1])
+	email, err := auth.GetEmail(strings.Split(tokenString, "Bearer ")[1])
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Error",
@@ -115,8 +115,8 @@ func CreatePhoto(c *gin.Context) {
 		return
 	}
 
-	//Initialize photo
-	input_photo.Initialize()
+	//Init photo
+	input_photo.Init()
 	input_photo.UserID = user_has_login.ID
 	input_photo.Owner = app.Owner{
 		ID:       user_has_login.ID,
@@ -192,7 +192,7 @@ func UpdatePhoto(c *gin.Context) {
 	//Get bearer token
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
-		c.JSON(401, gin.H{"error": "No token provided"})
+		c.JSON(401, gin.H{"error": "Token not found"})
 		return
 	}
 
